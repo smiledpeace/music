@@ -82,7 +82,7 @@
   }
 </style>
 <script>
-  import {mapGetters} from 'vuex';
+    import {mapGetters} from 'vuex';
     export default {
         updated () {
 
@@ -93,36 +93,38 @@
             }
         },
         methods: {
-          getSong (item,index) {
-              let params = {
-                id: item.id
-              };
-            this.$store.dispatch('getSong',params).then(() => {
-              this.audio.play();
-              this.$store.dispatch('setStatus');
-              this.$store.dispatch('setIndex',index);
-              document.querySelector('.play').classname = 'pause';
-            });
-          },
-          addClass() {
+            getSong (item,index) {
+                let params = {
+                  id: item.id
+                };
+                this.$store.dispatch('getSong',params).then(() => {
+                    this.audio.play();
+                    this.$store.dispatch('setIndex',index);
+                    document.querySelector('.play').className = 'play playPic';
+                    let imgUrl = this.songList[index];
+                    console.log(imgUrl);
+                    this.$store.dispatch('getSongDetail',imgUrl);
+                });
+            },
+            addClass() {
 
-          },
-          addColor (name) {
-              let check = this.searchResult;
-              let $name = document.querySelectorAll(`.${name}`);
-              $name = Array.prototype.slice.call($name);
-              $name.forEach(content => {
-                  if(~content.innerHTML.indexOf(check)) {
-                      content.innerHTML = content.innerHTML.replace(check,`<span style="color: #2e6b8f;">${check}</span>`)
-                  }
-              })
-          }
+            },
+            addColor (name) {
+                let check = this.searchResult;
+                let $name = document.querySelectorAll(`.${name}`);
+                $name = Array.prototype.slice.call($name);
+                $name.forEach(content => {
+                    if(~content.innerHTML.indexOf(check)) {
+                        content.innerHTML = content.innerHTML.replace(check,`<span style="color: #2e6b8f;">${check}</span>`)
+                    }
+                })
+            }
         },
         props: ['songList','searchResult'],
         components: {},
       computed: {
         ...mapGetters({
-            audio: 'getAudio'
+            audio: 'getAudio',
         })
       },
       watch: {

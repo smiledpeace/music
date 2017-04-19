@@ -36,3 +36,7 @@ export const setAudio = ({commit},audio) => {
 export const setStatus = ({commit}) => {
   commit('SETSTATUS')
 };
+
+export const getSongDetail = ({commit},imgUrl) => {
+  commit('GETSONGDETAIL',imgUrl)
+}

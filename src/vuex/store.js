@@ -14,7 +14,7 @@ const state = {
   songInfo: '',
   songIndex: 0,
   audio: '',
-  is_play: false
+  detail: ''
 };
 
 export default new Vuex.Store({

@@ -11,3 +11,5 @@ export const getIndex = state => state.songIndex;
 export const getAudio = state => state.audio;
 
 export const getStatus = state => state.is_play;
+
+export const getDetail = state => state.detail;

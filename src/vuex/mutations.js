@@ -26,9 +26,8 @@ export const SETPREVINDEX = (state) => {
 export const SETAUDIO = (state,audio) => {
   state.audio = audio
 };
-
-export const SETSTATUS = (state) => {
-  state.is_play = !state.is_play
+export const GETSONGDETAIL = (state,detail) => {
+  state.detail = detail
 };
 
 
