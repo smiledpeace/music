@@ -26,8 +26,21 @@ export const SETPREVINDEX = (state) => {
 export const SETAUDIO = (state,audio) => {
   state.audio = audio
 };
+export const SETGRESS = (state,gress) => {
+  state.gress = gress
+};
+export const SETVOLUME = (state,volume) => {
+  state.volume = volume
+};
 export const GETSONGDETAIL = (state,detail) => {
   state.detail = detail
+};
+export const SETCURRENTTIME = (state,time) => {
+  state.currentTime = time
+};
+
+export const SETPROGRESS = (state,time) => {
+  state.progress = time
 };
 
 

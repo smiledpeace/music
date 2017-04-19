@@ -101,9 +101,8 @@
                     this.audio.play();
                     this.$store.dispatch('setIndex',index);
                     document.querySelector('.play').className = 'play playPic';
-                    let imgUrl = this.songList[index];
-                    console.log(imgUrl);
-                    this.$store.dispatch('getSongDetail',imgUrl);
+                    this.$store.dispatch('getSongDetail',this.songList[index]);
+                    this.$store.dispatch('setCurrentTime');
                 });
             },
             addClass() {

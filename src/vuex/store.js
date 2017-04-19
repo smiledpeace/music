@@ -14,7 +14,11 @@ const state = {
   songInfo: '',
   songIndex: 0,
   audio: '',
-  detail: ''
+  detail: '',
+  currentTime: '',
+  gress: '',
+  volume: '',
+  progress: ''
 };
 
 export default new Vuex.Store({

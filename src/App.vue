@@ -15,7 +15,7 @@
       <aside>
           <div class="top"></div>
           <div class="detail">
-              <div class="pic"><img :src="detail ? detail.al.picUrl : ''" alt=""></div>
+              <div class="pic"><img v-if="detail" :src="detail.al.picUrl" alt=""></div>
               <div class="name">
                   <span>{{detail ? detail.name : ''}}</span>
                   <span>{{detail ? detail.ar[0].name : ''}}</span></div>
@@ -23,7 +23,7 @@
           </div>
       </aside>
       <article>
-          <search-list :search-result="value" ></search-list>
+          <search-list :search-result="value"></search-list>
       </article>
       <footer>
           <div>
@@ -32,14 +32,17 @@
               <span class="next" @click="nextSong"></span>
           </div>
           <div class="progress">
-              <input type="range">
+              <div class="playtime">{{currentTime | get-time}}</div>
+              <input type="range" id="gress" min="0" max="0">
+              <div class="totalTime">{{detail.dt | get-time}}</div>
           </div>
           <div class="voice">
-              <input type="range" >
+              <div class="pic voicePic"></div>
+              <input type="range" id="volume" min="0" max="100">
           </div>
           <div></div>
     </footer>
-    <audio id="audio" :src="url" controls="controls"></audio>
+    <audio id="audio" :src="url" controls="controls" @ended="nextSong" @timeupdate=""></audio>
   </div>
 </template>
 <style scoped lang="less" rel="stylesheet/less">
@@ -225,9 +228,45 @@
           }
           div.progress {
               width: 530px;
+              display: flex;
+              color: #dcdde4;
+              align-items: center;
+              .playtime {
+                  width: 40px;
+                  text-align: center;
+                  height: 24px;
+                  line-height: 24px;
+                  font-size: 12px;
+              }
+              input[type=range] {
+                  width: 438px;
+              }
+              .totalTime {
+                  flex: 1;
+                  text-align: center;
+                  height: 24px;
+                  line-height: 24px;
+                  font-size: 12px;
+              }
           }
           div.voice {
-             width: 140px;
+              width: 140px;
+              display: flex;
+              align-items: center;
+              cursor: pointer;
+              .voicePic {
+                  width: 16px;
+                  height: 12px;
+                  background: url("/static/images/voiceBig.png") no-repeat 20px center;
+              }
+              .small {
+                  width: 8px;
+                  height: 12px;
+                  background: url("/static/images/voiceSmall.png") no-repeat 20px center;
+              }
+              input[type=range] {
+                  width: 100px;
+              }
           }
           div:last-child {
              flex:1;
@@ -248,24 +287,65 @@
 <script>
   import {mapGetters} from 'vuex'
   import searchList from './components/searchList.vue';
+  import {getTime} from './assets/js/filters';
   export default {
       name: 'app',
       mounted () {
+          const _this = this;
           this.$store.dispatch('setAudio',document.querySelector('#audio'));
+          document.querySelector('#gress').value = 0;
+          this.$store.dispatch('setGress',document.querySelector('#gress'));
+          this.$store.dispatch('setVolume',document.querySelector('#volume'));
+          this.loading();
       },
       data() {
           return {
-              value: ''
+              value: '',
+              volume: 0
           }
       },
       methods: {
+          loading () {
+              const _this = this;
+              let volume = document.querySelector('#volume');
+              let pic = document.querySelector('.voice .pic');
+              _this.audio.volume = volume.value / 100;
+              _this.audio.volume = volume.value / 100;
+              let value = volume.value;
+              volume.style.backgroundSize = `${volume.value}% 100%`;
+              volume.oninput = function () {
+                  _this.audio.volume = this.value / 100;
+                  value = this.value;
+                  this.style.backgroundSize = `${this.value}% 100%`;
+                  if (this.value == 0) {
+                      pic.className = 'pic small';
+                  }else {
+                      pic.className = 'pic voicePic';
+                  }
+              };
+              pic.addEventListener('click',function () {
+                  if (this.className.indexOf('voicePic') !== -1) {
+                      pic.className = 'pic small';
+                      _this.audio.muted = true;
+                      volume.value = 0;
+                      volume.style.backgroundSize = `0 100%`;
+                      _this.audio.volume = volume.value / 100;
+                  }else {
+                      pic.className = 'pic voicePic';
+                      _this.audio.muted = false;
+                      volume.value = value;
+                      _this.audio.volume = volume.value / 100;
+                      volume.style.backgroundSize = `${value}% 100%`;
+                  }
+              })
+          },
           search () {
               let params =  {
                   search_type: '',
                   search_key: this.value,
                   offset: 0,
               };
-            this.$store.dispatch('search',params);
+              this.$store.dispatch('search',params);
           },
           play() {
               if(this.audio.paused ) {
@@ -286,6 +366,8 @@
               this.$store.dispatch('getSong',params).then(() => {
                   this.audio.play();
                   document.querySelector('.play').className = 'play playPic';
+                  this.$store.dispatch('getSongDetail',this.getList.songs[this.getIndex]);
+                  this.$store.dispatch('setCurrentTime');
               });
           },
           prevSong() {
@@ -298,6 +380,8 @@
               this.$store.dispatch('getSong',params).then( () => {
                   this.audio.play();
                   document.querySelector('.play').className = 'play playPic';
+                  this.$store.dispatch('getSongDetail',this.getList.songs[this.getIndex]);
+                  this.$store.dispatch('setCurrentTime');
               });
           }
       },
@@ -311,18 +395,18 @@
               getIndex: 'getIndex',
               audio: 'getAudio',
               is_play: 'getStatus',
-              detail: 'getDetail'
+              detail: 'getDetail',
+              currentTime: 'getCurrentTime',
+              progress: 'getProgress'
           })
       },
       watch: {
-          audio (val) {
-              if (val.ended) {
-                  this.nextSong();
-              }
-          },
           detail (val) {
             console.log(val);
           }
+      },
+      filters: {
+          getTime: getTime
       }
 
   }
